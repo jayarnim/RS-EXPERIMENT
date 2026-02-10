@@ -1,5 +1,7 @@
 from . import (
-    early_stopper,
-    predictor,
     monitor,
+    predictor,
+    criterion,
+    metrics,
+    early_stopper,
 )

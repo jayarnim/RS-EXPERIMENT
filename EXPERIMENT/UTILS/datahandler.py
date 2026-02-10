@@ -1,7 +1,7 @@
 from typing import Optional
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from .constants import (
+from ..constants import (
     DEFAULT_USER_COL,
     DEFAULT_ITEM_COL,
     DEFAULT_RATING_COL,
@@ -16,23 +16,39 @@ def rename_columns(
     col_rating: Optional[str]=None,
     col_timestamp: Optional[str]=None,
 ):
-    COL_LIST = [col_user, col_item]
-    RE_COL_LIST = [DEFAULT_USER_COL, DEFAULT_ITEM_COL]
+    ORIGIN_COL_LIST = [col_user, col_item]
+    RENAME_COL_LIST = [DEFAULT_USER_COL, DEFAULT_ITEM_COL]
 
     if col_rating is not None:
-        COL_LIST.append(col_rating)
-        RE_COL_LIST.append(DEFAULT_RATING_COL)
+        ORIGIN_COL_LIST.append(col_rating)
+        RENAME_COL_LIST.append(DEFAULT_RATING_COL)
 
     if col_timestamp is not None:
-        COL_LIST.append(col_timestamp)
-        RE_COL_LIST.append(DEFAULT_TIMESTAMP_COL)
+        ORIGIN_COL_LIST.append(col_timestamp)
+        RENAME_COL_LIST.append(DEFAULT_TIMESTAMP_COL)
 
-    RENAMES = dict(zip(COL_LIST, RE_COL_LIST))
+    RENAMES = dict(zip(ORIGIN_COL_LIST, RENAME_COL_LIST))
     
-    data = data[COL_LIST]
+    data = data[RENAME_COL_LIST]
     data = data.rename(columns=RENAMES)
 
     return data
+
+
+def label_encoding(
+    data: pd.DataFrame, 
+    col_user: str=DEFAULT_USER_COL, 
+    col_item: str=DEFAULT_ITEM_COL,
+):
+    user_encoder = LabelEncoder()
+    data[col_user] = user_encoder.fit_transform(data[col_user])
+    user_label = dict(zip(user_encoder.classes_, user_encoder.transform(user_encoder.classes_)))
+    
+    item_encoder = LabelEncoder()
+    data[col_item] = item_encoder.fit_transform(data[col_item])
+    item_label = dict(zip(item_encoder.classes_, item_encoder.transform(item_encoder.classes_)))
+
+    return data, user_label, item_label
 
 
 def description(
@@ -66,19 +82,3 @@ def description(
         f"mean interaction of item: {TOTAL_INTERACTION // N_ITEMS}",
         sep="\n",
     )
-
-
-def label_encoding(
-    data: pd.DataFrame, 
-    col_user: str=DEFAULT_USER_COL, 
-    col_item: str=DEFAULT_ITEM_COL,
-):
-    user_encoder = LabelEncoder()
-    data[col_user] = user_encoder.fit_transform(data[col_user])
-    user_label = dict(zip(user_encoder.classes_, user_encoder.transform(user_encoder.classes_)))
-    
-    item_encoder = LabelEncoder()
-    data[col_item] = item_encoder.fit_transform(data[col_item])
-    item_label = dict(zip(item_encoder.classes_, item_encoder.transform(item_encoder.classes_)))
-
-    return data, user_label, item_label

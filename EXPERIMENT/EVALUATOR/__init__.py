@@ -1,5 +1,5 @@
 from . import (
     evaluator,
-    msr,
-    utils,
+    metrics,
+    predictor,
 )
