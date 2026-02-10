@@ -4,7 +4,7 @@ from ...constants import (
     DEFAULT_ITEM_COL,
 )
 from ...msr.python_splitters import python_stratified_split
-from .registry import DATALOADER_REGISTRY
+from .objective.registry import DATALOADER_REGISTRY
 
 
 def _data_stratified_splitter(df, ratio_trn_val_tst, seed, col_user, col_item):

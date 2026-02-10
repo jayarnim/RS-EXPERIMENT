@@ -1,7 +1,5 @@
 from . import (
     builder,
-    registry,
-    pointwise,
-    pairwise,
-    listwise,
+    objective,
+    loss_fn,
 )

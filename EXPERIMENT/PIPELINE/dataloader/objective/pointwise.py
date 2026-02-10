@@ -2,7 +2,7 @@ import random
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader, Dataset
-from ...constants import (
+from ....constants import (
     DEFAULT_USER_COL,
     DEFAULT_ITEM_COL,
 )

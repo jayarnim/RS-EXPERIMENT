@@ -11,7 +11,7 @@ from ...constants import (
 from .early_stopper import EarlyStopper
 from .predictor import Predictor
 from .metrics import MetricsComputer
-from ..metric_fn.registry import CRITERION_REGISTRY
+from .metric_fn.registry import CRITERION_REGISTRY
 
 
 # device setting

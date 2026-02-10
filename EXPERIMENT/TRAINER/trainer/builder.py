@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from .registry import TRAINER_REGISTRY
-from ..loss_fn.registry import CRITERION_REGISTRY
+from .objective.registry import TRAINER_REGISTRY
+from .loss_fn.registry import CRITERION_REGISTRY
 
 
 def builder(
