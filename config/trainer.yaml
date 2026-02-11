@@ -1,0 +1,26 @@
+# TRAINER PACKAGE ==========
+engine:
+  criterion: bce
+
+monitor:
+  criterion: ndcg
+  delta: 1e-3
+  patience: 5
+  warmup: 10
+
+trainer:
+  num_epochs: 1000
+
+# If learning rate and regularization strength are not set for each module,
+# comment out the line: param_groups, module_name, lr_scale, weight_decay
+optimizer:
+  name: adam
+  lr: 1e-4
+  weight_decay: 1e-6
+  # param_groups:
+  #   embedding_module:
+  #     lr_scale:
+  #     weight_decay:
+  #   matching_module:
+  #     lr_scale:
+  #     weight_decay:

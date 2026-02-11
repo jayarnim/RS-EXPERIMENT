@@ -39,15 +39,15 @@ def _true_pred_seperator(self, result, col_user, col_item, col_rating, col_predi
     return rating_true, rating_pred
 
 
-def _top_k_evaluator(rating_true, rating_pred, k, col_user, col_item, col_rating, col_prediction):
+def _top_k_evaluator(rating_true, rating_pred, col_user, col_item, col_rating, col_prediction, k):
     kwargs = dict(
         rating_true=rating_true,
         rating_pred=rating_pred.head(k),
-        k=k,
         col_user=col_user,
         col_item=col_item,
         col_rating=col_rating,
         col_prediction=col_prediction,
+        k=k,
     )
 
     return dict(
@@ -83,11 +83,11 @@ def metrics_computer(
         kwargs = dict(
             rating_true=rating_true, 
             rating_pred=rating_pred, 
-            k=k,
             col_user=col_user,
             col_item=col_item,
             col_rating=col_rating,
             col_prediction=col_prediction,
+            k=k,
         )
         eval = _top_k_evaluator(**kwargs)
         eval_list.append(eval)

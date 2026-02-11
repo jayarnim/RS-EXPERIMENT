@@ -23,7 +23,7 @@ class Predictor:
         col_rating: str=DEFAULT_RATING_COL,
         col_prediction: str=DEFAULT_PREDICTION_COL,
     ):
-        self.model = model.to(DEVICE)
+        self.model = model
         self.col_user = col_user
         self.col_item = col_item
         self.col_rating = col_rating

@@ -12,18 +12,18 @@ class MetricsComputer:
     def __init__(
         self, 
         criterion,
-        k: int=DEFAULT_K,
         col_user: str=DEFAULT_USER_COL,
         col_item: str=DEFAULT_ITEM_COL,
         col_rating: str=DEFAULT_RATING_COL,
         col_prediction: str=DEFAULT_PREDICTION_COL,
+        k: int=DEFAULT_K,
     ):
         self.criterion = criterion
-        self.k = k
         self.col_user = col_user
         self.col_item = col_item
         self.col_rating = col_rating
         self.col_prediction = col_prediction
+        self.k = k
 
     def __call__(
         self,

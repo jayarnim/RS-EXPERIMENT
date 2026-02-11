@@ -6,16 +6,16 @@ from ...constants import (
 )
 
 
-def builder(
+def interactions_generator(
     df: pd.DataFrame, 
     col_user: str=DEFAULT_USER_COL,
     col_item: str=DEFAULT_ITEM_COL,
 ):
-    n_users = df[col_user].nunique()
-    n_items = df[col_item].nunique()
+    num_users = df[col_user].nunique()
+    num_items = df[col_item].nunique()
 
     kwargs = dict(
-        size=(n_users + 1, n_items + 1),
+        size=(num_users + 1, num_items + 1),
         dtype=torch.int32,
     )
     user_item_matrix = torch.zeros(**kwargs)

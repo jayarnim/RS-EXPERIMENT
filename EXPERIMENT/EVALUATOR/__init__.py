@@ -1,5 +1,5 @@
 from . import (
     evaluator,
-    metrics,
+    metrics_computer,
     predictor,
 )

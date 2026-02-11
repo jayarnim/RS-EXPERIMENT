@@ -7,31 +7,29 @@ import torch.nn as nn
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-class Runner:
+class Trainer:
     def __init__(
         self, 
         model: nn.Module,
-        trainer,
+        engine,
         monitor,
+        num_epochs,
     ):
-        self.model = model.to(DEVICE)
-        self.trainer = trainer
+        self.model = model
+        self.engine = engine
         self.monitor = monitor
+        self.num_epochs = num_epochs
 
     def fit(
         self, 
         trn_loader: torch.utils.data.dataloader.DataLoader, 
         val_loader: torch.utils.data.dataloader.DataLoader, 
         dev_loader: torch.utils.data.dataloader.DataLoader, 
-        cfg: dict, 
     ):
-        NUM_EPOCHS = cfg["runner"]["num_epochs"]
-
         kwargs = dict(
             trn_loader=trn_loader, 
             val_loader=val_loader, 
             dev_loader=dev_loader, 
-            num_epochs=NUM_EPOCHS, 
         )
         trn_log_list, val_log_list, dev_log_list = self._progressor(**kwargs)
 
@@ -44,26 +42,24 @@ class Runner:
         )
         return self._finalizer(**kwargs)
 
-    def _progressor(self, trn_loader, val_loader, dev_loader, num_epochs):
+    def _progressor(self, trn_loader, val_loader, dev_loader):
         trn_log_list = []
         val_log_list = []
         dev_log_list = []
 
-        for epoch in range(num_epochs):
+        for epoch in range(self.num_epochs):
             # trn, val
             kwargs = dict(
                 trn_loader=trn_loader, 
                 val_loader=val_loader, 
                 epoch=epoch,
-                num_epochs=num_epochs,
             )
-            trn_loss, val_loss = self._run_trainer(**kwargs)
+            trn_loss, val_loss = self._run_engine(**kwargs)
 
             # dev
             kwargs = dict(
                 dev_loader=dev_loader,
                 epoch=epoch,
-                num_epochs=num_epochs,
             )
             dev_score = self._run_monitor(**kwargs)
 
@@ -99,14 +95,14 @@ class Runner:
             dev=dev_log_list,
         )
 
-    def _run_trainer(self, trn_loader, val_loader, epoch, num_epochs):
+    def _run_engine(self, trn_loader, val_loader, epoch):
         kwargs = dict(
             trn_loader=trn_loader, 
             val_loader=val_loader, 
             epoch=epoch,
-            num_epochs=num_epochs,
+            num_epochs=self.num_epochs,
         )
-        trn_loss, val_loss = self.trainer(**kwargs)
+        trn_loss, val_loss = self.engine(**kwargs)
 
         print(
             f"TRN LOSS: {trn_loss:.4f}",
@@ -116,11 +112,11 @@ class Runner:
 
         return trn_loss, val_loss
 
-    def _run_monitor(self, dev_loader, epoch, num_epochs):
+    def _run_monitor(self, dev_loader, epoch):
         kwargs = dict(
             dev_loader=dev_loader, 
             epoch=epoch,
-            num_epochs=num_epochs,
+            num_epochs=self.num_epochs,
         )
         dev_score = self.monitor(**kwargs)
 

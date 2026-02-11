@@ -6,7 +6,7 @@ def freq_selector(
     max_hist: int,
 ):
     # padding idx
-    n_target, n_counterpart = interactions.shape
+    num_target, num_counterpart = interactions.shape
 
     freq_counterpart = interactions.sum(dim=0)
 
@@ -16,7 +16,7 @@ def freq_selector(
         hist_count = int(interactions[row].sum().item())
         # padding only
         if hist_count == 0:
-            indices = torch.tensor([n_counterpart], dtype=torch.long)
+            indices = torch.tensor([num_counterpart], dtype=torch.long)
             topk_indices.append(indices.to(torch.long))
         # all
         elif hist_count <= max_hist:

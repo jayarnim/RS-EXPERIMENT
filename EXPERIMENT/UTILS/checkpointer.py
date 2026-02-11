@@ -2,7 +2,11 @@ import torch
 import torch.nn as nn
 
 
-def save(
+# device setting
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def save_model(
     model: nn.Module, 
     path: str,
 ):
@@ -17,12 +21,11 @@ def save(
     torch.save(checkpoint, path)
 
 
-def load(
+def load_model(
     model_cls: nn.Module, 
     path: str, 
-    map_location=None,
 ):
-    checkpoint = torch.load(path, map_location=map_location, weights_only=False)
+    checkpoint = torch.load(path, map_location=DEVICE, weights_only=False)
     model_args = checkpoint["model_args"]
     model = model_cls(**model_args)
     model.load_state_dict(checkpoint["model_state_dict"])

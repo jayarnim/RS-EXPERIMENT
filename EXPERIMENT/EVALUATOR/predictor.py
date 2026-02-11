@@ -22,9 +22,6 @@ def evaluation_predictor(
     col_rating: str=DEFAULT_RATING_COL,
     col_prediction: str=DEFAULT_PREDICTION_COL,
 ):
-    # to gpu
-    model = model.to(DEVICE)
-
     # evaluation
     model.eval()
 

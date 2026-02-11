@@ -8,14 +8,14 @@ from torch.amp import GradScaler, autocast
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-class PairwiseTrainer:
+class PairwiseEngine:
     def __init__(
         self,
         model: nn.Module,
         optimizer: torch.optim.Optimizer,
         criterion,
     ):
-        self.model = model.to(DEVICE)
+        self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
         self.scaler = GradScaler(device=DEVICE)
