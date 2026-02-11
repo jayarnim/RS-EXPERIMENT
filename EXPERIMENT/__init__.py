@@ -2,7 +2,7 @@ from . import (
     PIPELINE,
     TRAINER,
     EVALUATOR,
+    UTILS,
     msr,
-    utils,
     constants,
 )

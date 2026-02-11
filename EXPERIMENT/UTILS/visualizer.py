@@ -1,33 +1,33 @@
 import matplotlib.pyplot as plt
 
 
-def loss_plot(
+def comparison_curve(
     history: dict,
-    loss: str,
+    criterion: str,
     figsize: tuple=(8,5),
 ):
     plt.figure(figsize=figsize)
     plt.plot(history['trn'], label='TRN')
     plt.plot(history['val'], label='VAL')
     plt.xlabel('EPOCH')
-    plt.ylabel(loss)
-    plt.title('TRN vs. VAL')
+    plt.ylabel(criterion)
+    plt.title('TRAIN vs. VALIDATION')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.show()
 
 
-def score_plot(
+def criterion_curve(
     history: dict,
-    metric: str,
+    criterion: str,
     figsize: tuple=(8,5),
 ):
     plt.figure(figsize=figsize)
     plt.plot(history['loo'], label='LOO')
     plt.xlabel('EPOCH')
-    plt.ylabel(metric)
-    plt.title('LEAVE ONE OUT SCORE')
+    plt.ylabel(criterion)
+    plt.title('LEAVE ONE OUT')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()

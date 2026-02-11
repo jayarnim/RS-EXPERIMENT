@@ -10,7 +10,7 @@ from ..constants import (
 
 
 def rename_columns(
-    data: pd.DataFrame,
+    df: pd.DataFrame,
     col_user: str,
     col_item: str,
     col_rating: Optional[str]=None,
@@ -29,41 +29,41 @@ def rename_columns(
 
     RENAMES = dict(zip(ORIGIN_COL_LIST, RENAME_COL_LIST))
     
-    data = data[RENAME_COL_LIST]
-    data = data.rename(columns=RENAMES)
+    df = df[ORIGIN_COL_LIST]
+    df = df.rename(columns=RENAMES)
 
-    return data
+    return df
 
 
 def label_encoding(
-    data: pd.DataFrame, 
+    df: pd.DataFrame, 
     col_user: str=DEFAULT_USER_COL, 
     col_item: str=DEFAULT_ITEM_COL,
 ):
     user_encoder = LabelEncoder()
-    data[col_user] = user_encoder.fit_transform(data[col_user])
+    df[col_user] = user_encoder.fit_transform(df[col_user])
     user_label = dict(zip(user_encoder.classes_, user_encoder.transform(user_encoder.classes_)))
     
     item_encoder = LabelEncoder()
-    data[col_item] = item_encoder.fit_transform(data[col_item])
+    df[col_item] = item_encoder.fit_transform(df[col_item])
     item_label = dict(zip(item_encoder.classes_, item_encoder.transform(item_encoder.classes_)))
 
-    return data, user_label, item_label
+    return df, user_label, item_label
 
 
 def description(
-    data: pd.DataFrame, 
+    df: pd.DataFrame, 
     percentaile: float=0.9,
     col_user: str=DEFAULT_USER_COL, 
     col_item: str=DEFAULT_ITEM_COL,
 ):
-    user_counts = data[col_user].value_counts()
-    item_counts = data[col_item].value_counts()
+    user_counts = df[col_user].value_counts()
+    item_counts = df[col_item].value_counts()
 
-    N_USERS = data[col_user].nunique()
-    N_ITEMS = data[col_item].nunique()
-    TOTAL_INTERACTION = len(data)
-    DENSITY = data.shape[0] / (N_USERS * N_ITEMS)
+    N_USERS = df[col_user].nunique()
+    N_ITEMS = df[col_item].nunique()
+    TOTAL_INTERACTION = len(df)
+    DENSITY = df.shape[0] / (N_USERS * N_ITEMS)
     MAX_USER_INTERACTION = user_counts.max()
     MAX_ITEM_INTERACTION = item_counts.max()
     TOP_PERCENTAILE_USER_INTERACTION = user_counts.quantile(percentaile)
