@@ -1,34 +1,31 @@
 import torch
-from torch.nn.utils.rnn import pad_sequence
-from .selector.registry import SELECTOR_REGISTRY
+from .histories import histories_generator
 
 
-def builder(
+def histories_builder(
     interactions: torch.Tensor, 
     cfg: dict,
 ):
-    SELECTOR = cfg["histories"]["selector"]
-    MAX_HIST = cfg["histories"]["max_hist"]
+    histories = dict()
 
-    # drop padding idx
-    interactions_unpadded = interactions[:-1, :-1]
+    USER_SELECTOR = cfg["user"]["selector"]
+    USER_MAX_HIST = cfg["user"]["max_hist"]
 
-    # padding idx
-    n_target, n_counterpart = interactions_unpadded.shape
-
-    # select hist per target
     kwargs = dict(
-        interactions=interactions_unpadded,
-        max_hist=MAX_HIST,
+        interactions=interactions,
+        selector=USER_SELECTOR,
+        max_hist=USER_MAX_HIST,
     )
-    hist_indices = SELECTOR_REGISTRY[SELECTOR](**kwargs)
+    histories["user"] = histories_generator(**kwargs)
 
-    # padding
+    ITEM_SELECTOR = cfg["item"]["selector"]
+    ITEM_MAX_HIST = cfg["item"]["max_hist"]
+
     kwargs = dict(
-        sequences=hist_indices, 
-        batch_first=True, 
-        padding_value=n_counterpart,
+        interactions=interactions.T,
+        selector=ITEM_SELECTOR,
+        max_hist=ITEM_MAX_HIST,
     )
-    hist_indices_padded = pad_sequence(**kwargs)
+    histories["item"] = histories_generator(**kwargs)
 
-    return hist_indices_padded
+    return histories

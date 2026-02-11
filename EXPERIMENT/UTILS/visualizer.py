@@ -2,16 +2,18 @@ import matplotlib.pyplot as plt
 
 
 def comparison_curve(
-    history: dict,
+    histories: list[list[float]],
+    labels: list[str],
     criterion: str,
+    title: str,
     figsize: tuple=(8,5),
 ):
     plt.figure(figsize=figsize)
-    plt.plot(history['trn'], label='TRN')
-    plt.plot(history['val'], label='VAL')
+    for hist, label in zip(histories, labels):
+        plt.plot(hist, label=label)
     plt.xlabel('EPOCH')
     plt.ylabel(criterion)
-    plt.title('TRAIN vs. VALIDATION')
+    plt.title(title)
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
@@ -19,15 +21,17 @@ def comparison_curve(
 
 
 def criterion_curve(
-    history: dict,
+    history: list[float],
+    label: str,
     criterion: str,
+    title: str,
     figsize: tuple=(8,5),
 ):
     plt.figure(figsize=figsize)
-    plt.plot(history['loo'], label='LOO')
+    plt.plot(history, label=label)
     plt.xlabel('EPOCH')
     plt.ylabel(criterion)
-    plt.title('LEAVE ONE OUT')
+    plt.title(title)
     plt.legend()
     plt.grid(True)
     plt.tight_layout()

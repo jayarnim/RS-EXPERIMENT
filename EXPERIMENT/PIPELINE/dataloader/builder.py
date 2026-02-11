@@ -1,10 +1,10 @@
 import pandas as pd
+from ...msr.python_splitters import python_stratified_split
+from .dataloader.registry import DATALOADER_REGISTRY
 from ...constants import (
     DEFAULT_USER_COL,
     DEFAULT_ITEM_COL,
 )
-from ...msr.python_splitters import python_stratified_split
-from .objective.registry import DATALOADER_REGISTRY
 
 
 def _data_stratified_splitter(df, split_ratio, seed, col_user, col_item):
@@ -60,19 +60,21 @@ def _candidates_generator(df, col_user, col_item):
 
     return neg_per_user
 
-def _dataloader_generator(objective, split_dict, candidates, num_negatives, batch_size, shuffle):
+def _dataloader_generator(strategy, split_dict, candidates, num_negatives, batch_size, shuffle, col_user, col_item):
     dataloader_dict = dict()
 
-    for k, v in split_dict:
+    for k, v in split_dict.items():
         kwargs = dict(
             df=v, 
             candidates=candidates,
             num_negatives=num_negatives["opt"] if k in ["trn", "val"] else num_negatives["eval"], 
             batch_size=batch_size, 
             shuffle=shuffle,
+            col_user=col_user,
+            col_item=col_item,
         )
         dataloader = (
-            DATALOADER_REGISTRY[objective](**kwargs)
+            DATALOADER_REGISTRY[strategy](**kwargs)
             if k in ["trn", "val"] 
             else DATALOADER_REGISTRY["pointwise"](**kwargs)
         )
@@ -81,24 +83,24 @@ def _dataloader_generator(objective, split_dict, candidates, num_negatives, batc
     return dataloader_dict
 
 
-def builder(
+def dataloader_builder(
     df: pd.DataFrame,
     cfg: dict,
+    strategy: str,
+    seed: int,
     col_user: str=DEFAULT_USER_COL, 
     col_item: str=DEFAULT_ITEM_COL,
 ):
-    OBJECTIVE = cfg["objective"]
-    SPLIT_RATIO = cfg["dataloader"]["split_ratio"]
-    NUM_NEGATIVES = cfg["dataloader"]["num_negatives"]
-    BATCH_SIZE = cfg["dataloader"]["batch_size"]
-    SHUFFLE = cfg["dataloader"]["shuffle"]
-    SEED = cfg["seed"]
+    SPLIT_RATIO = cfg["split_ratio"]
+    NUM_NEGATIVES = cfg["num_negatives"]
+    BATCH_SIZE = cfg["batch_size"]
+    SHUFFLE = cfg["shuffle"]
     
     # split original data
     kwargs = dict(
         df=df,
         split_ratio=SPLIT_RATIO,
-        seed=SEED,
+        seed=seed,
         col_user=col_user,
         col_item=col_item,
     )
@@ -113,12 +115,14 @@ def builder(
 
     # generate data loaders
     kwargs = dict(
-        objective=OBJECTIVE,
+        strategy=strategy,
         split_dict=split_dict, 
         candidates=candidates,
         num_negatives=NUM_NEGATIVES, 
         batch_size=BATCH_SIZE, 
         shuffle=SHUFFLE,
+        col_user=col_user,
+        col_item=col_item,
     )
     dataloader_dict = _dataloader_generator(**kwargs)
 

@@ -23,7 +23,7 @@ class Predictor:
         col_rating: str=DEFAULT_RATING_COL,
         col_prediction: str=DEFAULT_PREDICTION_COL,
     ):
-        self.model = model.to(DEVICE)
+        self.model = model
         self.col_user = col_user
         self.col_item = col_item
         self.col_rating = col_rating
@@ -34,7 +34,6 @@ class Predictor:
         self,
         dev_loader: torch.utils.data.dataloader.DataLoader,
         epoch: int,
-        num_epochs: int,
     ):
         # evaluation
         self.model.eval()
@@ -47,7 +46,7 @@ class Predictor:
 
         iter_obj = tqdm(
             iterable=dev_loader, 
-            desc=f"Epoch {epoch+1}/{num_epochs} DEV",
+            desc=f"EPOCH {epoch+1} DEV"
         )
 
         for user_idx, item_idx, label in iter_obj:
@@ -58,13 +57,14 @@ class Predictor:
             )
 
             # predict
-            preds = self.model.predict(**kwargs)
+            logit = self.model.predict(**kwargs)
+            pred = torch.sigmoid(logit)
 
             # to cpu & save
             user_idx_list.extend(user_idx.cpu().tolist())
             item_idx_list.extend(item_idx.cpu().tolist())
             label_list.extend(label.cpu().tolist())
-            pred_list.extend(preds.cpu().tolist())
+            pred_list.extend(pred.cpu().tolist())
 
         # list -> df
         result = pd.DataFrame(

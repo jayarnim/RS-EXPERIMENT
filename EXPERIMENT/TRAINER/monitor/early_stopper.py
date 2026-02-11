@@ -27,7 +27,7 @@ class EarlyStopper:
             self.counter = 0
         
         else:
-            if IMPROVED is True:
+            if IMPROVED:
                 self.best_score = current_score
                 self.best_epoch = current_epoch + 1
                 self.best_model_state = current_model_state

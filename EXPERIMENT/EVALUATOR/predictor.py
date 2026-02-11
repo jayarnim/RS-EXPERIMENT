@@ -22,9 +22,6 @@ def evaluation_predictor(
     col_rating: str=DEFAULT_RATING_COL,
     col_prediction: str=DEFAULT_PREDICTION_COL,
 ):
-    # to gpu
-    model = model.to(DEVICE)
-
     # evaluation
     model.eval()
 
@@ -47,7 +44,8 @@ def evaluation_predictor(
         )
         
         # predict
-        pred = model.predict(**kwargs)
+        logit = model.predict(**kwargs)
+        pred = torch.sigmoid(logit)
 
         # save
         user_idx_list.extend(user_idx.cpu().tolist())
