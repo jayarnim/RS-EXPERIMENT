@@ -4,11 +4,13 @@ import torch
 
 
 def reset(
-    seed: int,
+    cfg: dict,
 ):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    print(f"ALL SEEDS RESET: {seed}")
+    SEED = cfg["seed"]
+
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed(SEED)
+    torch.cuda.manual_seed_all(SEED)
+    print(f"ALL SEEDS RESET: {SEED}")

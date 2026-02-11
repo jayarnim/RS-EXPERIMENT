@@ -32,7 +32,7 @@ class Predictor:
     @torch.no_grad()
     def __call__(
         self,
-        loo_loader: torch.utils.data.dataloader.DataLoader,
+        dev_loader: torch.utils.data.dataloader.DataLoader,
         epoch: int,
         num_epochs: int,
     ):
@@ -46,8 +46,8 @@ class Predictor:
         pred_list = []
 
         iter_obj = tqdm(
-            iterable=loo_loader, 
-            desc=f"Epoch {epoch+1}/{num_epochs} LOO",
+            iterable=dev_loader, 
+            desc=f"Epoch {epoch+1}/{num_epochs} DEV",
         )
 
         for user_idx, item_idx, label in iter_obj:

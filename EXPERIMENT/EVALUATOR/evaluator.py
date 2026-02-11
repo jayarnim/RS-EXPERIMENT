@@ -17,12 +17,14 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def performance_evaluator(
     model: nn.Module, 
     tst_loader: torch.utils.data.dataloader.DataLoader,
-    top_k_list: list=[5, 10, 15, 20, 25, 50, 100],
+    cfg: dict,
     col_user: str=DEFAULT_USER_COL,
     col_item: str=DEFAULT_ITEM_COL,
     col_rating: str=DEFAULT_RATING_COL,
     col_prediction: str=DEFAULT_PREDICTION_COL,
 ):
+    K_LIST = cfg["evaluator"]["k_list"]
+    
     kwargs = dict(
         model=model,
         tst_loader=tst_loader,
@@ -35,7 +37,7 @@ def performance_evaluator(
 
     kwargs = dict(
         result=result,
-        top_k_list=top_k_list,
+        k_list=K_LIST,
         col_user=col_user,
         col_item=col_item,
         col_rating=col_rating,

@@ -7,9 +7,12 @@ from ...msr.python_splitters import python_stratified_split
 from .objective.registry import DATALOADER_REGISTRY
 
 
-def _data_stratified_splitter(df, ratio_trn_val_tst, seed, col_user, col_item):
-    # for leave one out data set
-    loo = (
+def _data_stratified_splitter(df, split_ratio, seed, col_user, col_item):
+    split_type = list(split_ratio.keys())
+    split_size = list(split_ratio.values())
+
+    # for dev data set
+    dev = (
         df
         .groupby(col_user)
         .sample(n=1, random_state=seed)
@@ -21,7 +24,7 @@ def _data_stratified_splitter(df, ratio_trn_val_tst, seed, col_user, col_item):
     trn_val_tst = (
         df[~df[[col_user, col_item]]
         .apply(tuple, axis=1)
-        .isin(set(loo[[col_user, col_item]]
+        .isin(set(dev[[col_user, col_item]]
         .apply(tuple, axis=1)))]
         .reset_index(drop=True)
     )
@@ -29,16 +32,17 @@ def _data_stratified_splitter(df, ratio_trn_val_tst, seed, col_user, col_item):
     # trn_val_tst -> [trn, val, tst]
     kwargs = dict(
         data=trn_val_tst,
-        ratio=ratio_trn_val_tst,
+        ratio=split_size,
         col_user=col_user,
         col_item=col_item,
         seed=seed,
     )
     split_list = python_stratified_split(**kwargs)
-    
-    split_list.append(loo)
 
-    return split_list
+    split_dict = dict(zip(split_type, split_list))    
+    split_dict["dev"] = dev
+
+    return split_dict
 
 def _candidates_generator(df, col_user, col_item):
     user_list = sorted(df[col_user].unique())
@@ -56,47 +60,49 @@ def _candidates_generator(df, col_user, col_item):
 
     return neg_per_user
 
-def _dataloader_generator(objective, split_list, candidates, ratio_neg_per_pos, batch_size, shuffle):
-    dataloader_list = []
+def _dataloader_generator(objective, split_dict, candidates, num_negatives, batch_size, shuffle):
+    dataloader_dict = dict()
 
-    for i, split in enumerate(split_list):
+    for k, v in split_dict:
         kwargs = dict(
-            df=split, 
+            df=v, 
             candidates=candidates,
-            ratio_neg_per_pos=ratio_neg_per_pos if i<2 else 99, 
+            num_negatives=num_negatives["opt"] if k in ["trn", "val"] else num_negatives["eval"], 
             batch_size=batch_size, 
             shuffle=shuffle,
         )
         dataloader = (
             DATALOADER_REGISTRY[objective](**kwargs)
-            if i<2 
+            if k in ["trn", "val"] 
             else DATALOADER_REGISTRY["pointwise"](**kwargs)
         )
-        dataloader_list.append(dataloader)
+        dataloader_dict[k] = dataloader
 
-    return dataloader_list
+    return dataloader_dict
 
 
 def builder(
     df: pd.DataFrame,
-    objective: str,
-    ratio_trn_val_tst: list=[8, 1, 1],
-    ratio_neg_per_pos: int=4,
-    batch_size: int=128,
-    shuffle: bool=True,
-    seed: int=42,
+    cfg: dict,
     col_user: str=DEFAULT_USER_COL, 
     col_item: str=DEFAULT_ITEM_COL,
 ):
+    OBJECTIVE = cfg["objective"]
+    SPLIT_RATIO = cfg["dataloader"]["split_ratio"]
+    NUM_NEGATIVES = cfg["dataloader"]["num_negatives"]
+    BATCH_SIZE = cfg["dataloader"]["batch_size"]
+    SHUFFLE = cfg["dataloader"]["shuffle"]
+    SEED = cfg["seed"]
+    
     # split original data
     kwargs = dict(
         df=df,
-        ratio_trn_val_tst=ratio_trn_val_tst,
-        seed=seed,
+        split_ratio=SPLIT_RATIO,
+        seed=SEED,
         col_user=col_user,
         col_item=col_item,
     )
-    split_list = _data_stratified_splitter(**kwargs)
+    split_dict = _data_stratified_splitter(**kwargs)
 
     kwargs = dict(
         df=df,
@@ -107,13 +113,13 @@ def builder(
 
     # generate data loaders
     kwargs = dict(
-        objective=objective,
-        split_list=split_list, 
+        objective=OBJECTIVE,
+        split_dict=split_dict, 
         candidates=candidates,
-        ratio_neg_per_pos=ratio_neg_per_pos, 
-        batch_size=batch_size, 
-        shuffle=shuffle,
+        num_negatives=NUM_NEGATIVES, 
+        batch_size=BATCH_SIZE, 
+        shuffle=SHUFFLE,
     )
-    dataloader_list = _dataloader_generator(**kwargs)
+    dataloader_dict = _dataloader_generator(**kwargs)
 
-    return dataloader_list
+    return dataloader_dict

@@ -13,13 +13,13 @@ class PointwiseDataset(Dataset):
         self, 
         df: pd.DataFrame,
         candidates: dict,
-        ratio_neg_per_pos: int,
+        num_negatives: int,
         col_user: str=DEFAULT_USER_COL,
         col_item: str=DEFAULT_ITEM_COL,
     ):
         self.df = df
         self.candidates = candidates
-        self.ratio_neg_per_pos = ratio_neg_per_pos
+        self.num_negatives = num_negatives
         self.col_user = col_user
         self.col_item = col_item
 
@@ -29,13 +29,13 @@ class PointwiseDataset(Dataset):
         return self.total_samples
 
     def __getitem__(self, idx):
-        decision = (idx % (1 + self.ratio_neg_per_pos) == 0)
+        decision = (idx % (1 + self.num_negatives) == 0)
 
         if decision==True:
-            user, pos = self.user_item_pairs[idx // (1 + self.ratio_neg_per_pos)]
+            user, pos = self.user_item_pairs[idx // (1 + self.num_negatives)]
             return user, pos, 1
         else:
-            user, _ = self.user_item_pairs[idx // (1 + self.ratio_neg_per_pos)]
+            user, _ = self.user_item_pairs[idx // (1 + self.num_negatives)]
             neg = random.choice(self.candidates[user])
             return user, neg, 0
 
@@ -58,7 +58,7 @@ def _pointwise_collate_fn(batch):
 def pointwise_dataloader(
     df: pd.DataFrame,
     candidates: dict,
-    ratio_neg_per_pos: int,
+    num_negatives: int,
     batch_size: int,
     shuffle: bool=True,
     col_user: str=DEFAULT_USER_COL,
@@ -67,7 +67,7 @@ def pointwise_dataloader(
     kwargs = dict(
         df=df,
         candidates=candidates, 
-        ratio_neg_per_pos=ratio_neg_per_pos,
+        num_negatives=num_negatives,
         col_user=col_user, 
         col_item=col_item,     
     )

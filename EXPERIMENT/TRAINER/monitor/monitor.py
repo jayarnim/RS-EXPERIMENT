@@ -22,22 +22,23 @@ class Monitor:
     def __init__(
         self,
         model: nn.Module,
-        criterion: str,
-        delta: float,
-        patience: int,
-        warmup: int,
+        cfg: dict,
         k: int=DEFAULT_K,
         col_user: str=DEFAULT_USER_COL,
         col_item: str=DEFAULT_ITEM_COL,
         col_rating: str=DEFAULT_RATING_COL,
         col_prediction: str=DEFAULT_PREDICTION_COL,
     ):
-        # global attr
+        CRITERION = cfg["monitor"]["criterion"]
+        DELTA = cfg["monitor"]["delta"]
+        PATIENCE = cfg["monitor"]["patience"]
+        WARMUP = cfg["monitor"]["warmup"]
+
         self.model = model.to(DEVICE)
-        self.criterion = CRITERION_REGISTRY[criterion]
-        self.delta = delta
-        self.patience = patience
-        self.warmup = warmup
+        self.criterion = CRITERION_REGISTRY[CRITERION]
+        self.delta = DELTA
+        self.patience = PATIENCE
+        self.warmup = WARMUP
         self.k = k
         self.col_user = col_user
         self.col_item = col_item
@@ -48,12 +49,12 @@ class Monitor:
 
     def __call__(
         self,
-        loo_loader: torch.utils.data.dataloader.DataLoader,
+        dev_loader: torch.utils.data.dataloader.DataLoader,
         epoch: int,
         num_epochs: int,
     ):
         kwargs = dict(
-            loo_loader=loo_loader,
+            dev_loader=dev_loader,
             current_epoch=epoch,
             num_epochs=num_epochs,
         )

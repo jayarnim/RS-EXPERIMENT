@@ -62,7 +62,7 @@ def _top_k_evaluator(rating_true, rating_pred, k, col_user, col_item, col_rating
 
 def metrics_computer(
     result: pd.DataFrame,
-    top_k_list: list=[5, 10, 15, 20, 25, 50, 100],
+    k_list: list,
     col_user: str=DEFAULT_USER_COL,
     col_item: str=DEFAULT_ITEM_COL,
     col_rating: str=DEFAULT_RATING_COL,
@@ -79,7 +79,7 @@ def metrics_computer(
 
     eval_list = []
 
-    for k in top_k_list:
+    for k in k_list:
         kwargs = dict(
             rating_true=rating_true, 
             rating_pred=rating_pred, 

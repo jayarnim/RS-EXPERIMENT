@@ -5,9 +5,11 @@ from .selector.registry import SELECTOR_REGISTRY
 
 def builder(
     interactions: torch.Tensor, 
-    max_hist: int=None, 
-    selector: str="default",
+    cfg: dict,
 ):
+    SELECTOR = cfg["histories"]["selector"]
+    MAX_HIST = cfg["histories"]["max_hist"]
+
     # drop padding idx
     interactions_unpadded = interactions[:-1, :-1]
 
@@ -17,9 +19,9 @@ def builder(
     # select hist per target
     kwargs = dict(
         interactions=interactions_unpadded,
-        max_hist=max_hist,
+        max_hist=MAX_HIST,
     )
-    hist_indices = SELECTOR_REGISTRY[selector](**kwargs)
+    hist_indices = SELECTOR_REGISTRY[SELECTOR](**kwargs)
 
     # padding
     kwargs = dict(

@@ -13,13 +13,13 @@ class ListwiseDataset(Dataset):
         self, 
         df: pd.DataFrame,
         candidates: dict,
-        ratio_neg_per_pos: int,
+        num_negatives: int,
         col_user: str=DEFAULT_USER_COL,
         col_item: str=DEFAULT_ITEM_COL,
     ):
         self.df = df
         self.candidates = candidates
-        self.ratio_neg_per_pos = ratio_neg_per_pos
+        self.num_negatives = num_negatives
         self.col_user = col_user
         self.col_item = col_item
 
@@ -32,7 +32,7 @@ class ListwiseDataset(Dataset):
         user, pos = self.user_item_pairs[idx]
         kwargs = dict(
             population=self.candidates[user],
-            k=self.ratio_neg_per_pos,
+            k=self.num_negatives,
         )
         neg_list = random.sample(**kwargs)
         return user, pos, neg_list
@@ -56,7 +56,7 @@ def _listwise_collate_fn(batch):
 def listwise_dataloader(
     df: pd.DataFrame,
     candidates: dict,
-    ratio_neg_per_pos: int,
+    num_negatives: int,
     batch_size: int,
     shuffle: bool=True,
     col_user: str=DEFAULT_USER_COL,
@@ -65,7 +65,7 @@ def listwise_dataloader(
     kwargs = dict(
         df=df, 
         candidates=candidates,
-        ratio_neg_per_pos=ratio_neg_per_pos,
+        num_negatives=num_negatives,
         col_user=col_user, 
         col_item=col_item,     
     )
